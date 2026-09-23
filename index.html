@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BLACKOUT SECURITY</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #000;
+    color: #00ff66;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+}
+
+#app {
+    min-height: 100vh;
+    padding: 30px;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0,255,100,0.03),
+            rgba(0,255,100,0.03) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+}
+
+.title {
+    text-align: center;
+    color: red;
+    font-size: 42px;
+    text-shadow: 0 0 10px red;
+    animation: glitch 0.8s infinite;
+}
+
+.subtitle {
+    text-align: center;
+}
+
+#terminal {
+    width: 90%;
+    height: 48vh;
+    margin: 30px auto;
+    padding: 20px;
+    border: 1px solid #00ff66;
+    box-shadow: 0 0 20px #00ff66;
+    overflow: hidden;
+    background: rgba(0,0,0,0.9);
+}
+
+.line {
+    margin: 7px 0;
+}
+
+.warning {
+    color: red;
+}
+
+.progress-container {
+    width: 90%;
+    height: 25px;
+    border: 1px solid #00ff66;
+    margin: 20px auto;
+}
+
+#progress {
+    width: 0%;
+    height: 100%;
+    background: #00ff66;
+    box-shadow: 0 0 15px #00ff66;
+}
+
+#percent {
+    text-align: center;
+    font-size: 22px;
+}
+
+.buttons {
+    text-align: center;
+}
+
+button {
+    margin: 8px;
+    padding: 14px 25px;
+    background: #050505;
+    color: #00ff66;
+    border: 1px solid #00ff66;
+    font-family: monospace;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #00ff66;
+    color: black;
+}
+
+.danger {
+    border-color: red;
+    color: red;
+}
+
+#result {
+    text-align: center;
+    font-size: 25px;
+    color: red;
+    display: none;
+}
+
+/* FAUSSES FENÊTRES */
+
+.fake-window {
+    position: fixed;
+    width: 330px;
+    background: #080808;
+    border: 2px solid red;
+    box-shadow: 0 0 25px red;
+    z-index: 1000;
+    animation: appear 0.2s;
+}
+
+.window-bar {
+    background: #550000;
+    color: white;
+    padding: 8px;
+    font-weight: bold;
+}
+
+.window-content {
+    padding: 20px;
+    color: white;
+    text-align: center;
+}
+
+.window-content strong {
+    color: red;
+}
+
+.close-btn {
+    background: #550000;
+    color: white;
+    border: 1px solid red;
+    padding: 8px 20px;
+}
+
+/* FLASH ROUGE */
+
+.flash {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 0, 0, 0.35);
+    z-index: 999;
+    pointer-events: none;
+    animation: flashEffect 0.35s ease-out;
+}
+
+@keyframes flashEffect {
+
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+
+}
+
+@keyframes appear {
+
+    from {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+}
+
+@keyframes glitch {
+
+    0% {
+        transform: translate(0);
+    }
+
+    25% {
+        transform: translate(-2px, 1px);
+    }
+
+    50% {
+        transform: translate(2px, -1px);
+    }
+
+    75% {
+        transform: translate(-1px, 2px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <h1 class="title">
+        ⚠ BLACKOUT SECURITY ⚠
+    </h1>
+
+    <p class="subtitle">
+        ADVANCED SYSTEM DIAGNOSTIC
+    </p>
+
+    <div id="terminal">
+
+        <div class="line">
+            &gt; BLACKOUT SECURITY v4.7
+        </div>
+
+        <div class="line">
+            &gt; Système prêt.
+        </div>
+
+        <div class="line">
+            &gt; En attente d'une analyse...
+        </div>
+
+    </div>
+
+    <div class="progress-container">
+
+        <div id="progress"></div>
+
+    </div>
+
+    <div id="percent">
+        0%
+    </div>
+
+    <div id="result">
+
+        ⚠ 47 MENACES DÉTECTÉES ⚠
+
+        <br>
+
+        <small>
+            SIMULATION TERMINÉE
+        </small>
+
+    </div>
+
+    <div class="buttons">
+
+        <button onclick="startScan()">
+            ▶ LANCER LE SCAN
+        </button>
+
+        <button onclick="restartScan()">
+            ↻ RECOMMENCER
+        </button>
+
+        <button class="danger" onclick="fullscreenMode()">
+            ⛶ PLEIN ÉCRAN
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let scanning = false;
+let timer;
+
+
+/* MESSAGES */
+
+const messages = [
+
+    "[SYSTEM] Initialisation...",
+    "[SYSTEM] Chargement du moteur de sécurité...",
+    "[SCAN] Recherche des fichiers...",
+    "[SCAN] Analyse des processus...",
+    "[SCAN] Vérification de la mémoire...",
+    "[SCAN] Vérification des connexions...",
+    "[WARNING] Activité inhabituelle détectée",
+    "[SCAN] Analyse approfondie...",
+    "[WARNING] Signature inconnue détectée",
+    "[SCAN] Vérification finale...",
+    "[SYSTEM] Compilation du rapport..."
+
+];
+
+
+/* AJOUTER UNE LIGNE */
+
+function addLine(text, type = "") {
+
+    const terminal =
+        document.getElementById("terminal");
+
+    const line =
+        document.createElement("div");
+
+    line.className =
+        "line " + type;
+
+    line.textContent =
+        "> " + text;
+
+    terminal.appendChild(line);
+
+    terminal.scrollTop =
+        terminal.scrollHeight;
+
+}
+
+
+/* FLASH */
+
+function flashScreen() {
+
+    const flash =
+        document.createElement("div");
+
+    flash.className =
+        "flash";
+
+    document.body.appendChild(flash);
+
+    setTimeout(() => {
+
+        flash.remove();
+
+    }, 350);
+
+}
+
+
+/* FAUSSE FENÊTRE */
+
+function createFakeWindow(title, message) {
+
+    const win =
+        document.createElement("div");
+
+    win.className =
+        "fake-window";
+
+    win.style.left =
+        Math.floor(Math.random() * 60 + 20) + "%";
+
+    win.style.top =
+        Math.floor(Math.random() * 45 + 20) + "%";
+
+    win.innerHTML = `
+
+        <div class="window-bar">
+
+            ⚠ ${title}
+
+        </div>
+
+        <div class="window-content">
+
+            <strong>
+                ${message}
+            </strong>
+
+            <br><br>
+
+            <button
+                class="close-btn"
+                onclick="this.parentElement.parentElement.remove()">
+
+                FERMER
+
+            </button>
+
+        </div>
+
+    `;
+
+    document.body.appendChild(win);
+
+}
+
+
+/* LANCER LE SCAN */
+
+function startScan() {
+
+    if (scanning) return;
+
+    scanning = true;
+
+    clearInterval(timer);
+
+    document.getElementById("terminal")
+        .innerHTML = "";
+
+    document.getElementById("result")
+        .style.display = "none";
+
+    document.querySelectorAll(".fake-window")
+        .forEach(win => win.remove());
+
+    let progress = 0;
+
+    let messageIndex = 0;
+
+    addLine("SCAN INITIALISÉ");
+
+
+    timer = setInterval(() => {
+
+        progress++;
+
+        document.getElementById("progress")
+            .style.width =
+            progress + "%";
+
+        document.getElementById("percent")
+            .textContent =
+            progress + "%";
+
+
+        /* MESSAGES */
+
+        if (
+            progress % 7 === 0 &&
+            messageIndex < messages.length
+        ) {
+
+            const msg =
+                messages[messageIndex];
+
+            if (msg.includes("WARNING")) {
+
+                addLine(msg, "warning");
+
+            } else {
+
+                addLine(msg);
+
+            }
+
+            messageIndex++;
+
+        }
+
+
+        /* ALERTE 1 */
+
+        if (progress === 25) {
+
+            flashScreen();
+
+            createFakeWindow(
+                "WARNING",
+                "Activité inhabituelle détectée"
+            );
+
+        }
+
+
+        /* ALERTE 2 */
+
+        if (progress === 50) {
+
+            flashScreen();
+
+            createFakeWindow(
+                "SECURITY ALERT",
+                "Signature inconnue détectée"
+            );
+
+        }
+
+
+        /* ALERTE 3 */
+
+        if (progress === 75) {
+
+            flashScreen();
+
+            createFakeWindow(
+                "CRITICAL ALERT",
+                "Menace fictive détectée"
+            );
+
+        }
+
+
+        /* FIN */
+
+        if (progress >= 100) {
+
+            clearInterval(timer);
+
+            scanning = false;
+
+            addLine("SCAN TERMINÉ");
+
+            addLine(
+                "RÉSULTAT : 47 MENACES DÉTECTÉES",
+                "warning"
+            );
+
+            document.getElementById("result")
+                .style.display = "block";
+
+        }
+
+    }, 50);
+
+}
+
+
+/* RECOMMENCER */
+
+function restartScan() {
+
+    clearInterval(timer);
+
+    scanning = false;
+
+    document.getElementById("progress")
+        .style.width = "0%";
+
+    document.getElementById("percent")
+        .textContent = "0%";
+
+    document.getElementById("terminal")
+        .innerHTML = "";
+
+    document.getElementById("result")
+        .style.display = "none";
+
+    document.querySelectorAll(".fake-window")
+        .forEach(win => win.remove());
+
+    addLine("Système prêt.");
+
+    addLine("En attente d'une analyse...");
+
+}
+
+
+/* PLEIN ÉCRAN */
+
+function fullscreenMode() {
+
+    if (!document.fullscreenElement) {
+
+        document.documentElement
+            .requestFullscreen();
+
+    } else {
+
+        document.exitFullscreen();
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
