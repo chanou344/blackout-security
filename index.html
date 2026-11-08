@@ -297,12 +297,12 @@ const messages = [
     "[SYSTEM] Initialisation...",
     "[SYSTEM] Chargement du moteur de sécurité...",
     "[SCAN] Recherche des fichiers...",
-    "[SCAN] Analyse des processus...",
-    "[SCAN] Vérification de la mémoire...",
-    "[SCAN] Vérification des connexions...",
+    "[SCAN] Analyse carte graphique...",
+    "[SCAN] Vérification de la ram...",
+    "[SCAN] Vérification du processeue...",
     "[WARNING] Activité inhabituelle détectée",
     "[SCAN] Analyse approfondie...",
-    "[WARNING] Signature inconnue détectée",
+    "[WARNING] facture non payer",
     "[SCAN] Vérification finale...",
     "[SYSTEM] Compilation du rapport..."
 
@@ -488,7 +488,7 @@ function startScan() {
             flashScreen();
 
             createFakeWindow(
-                "SECURITY ALERT",
+                "ERROR",
                 "Signature inconnue détectée"
             );
 
